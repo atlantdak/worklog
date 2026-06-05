@@ -1,0 +1,11 @@
+{
+  "github_repo": "OWNER/REPO",
+  "clickup_list_id": "000000000000",
+  "umbrella_task_id": "",
+  "assignee_id": "00000000",
+  "naming": { "scheme": "TASK-{n}", "sub": "TASK-{n}.{m}", "start_n": 1 },
+  "sp_calibration": "~14-15 SP per active day",
+  "drafts_dir": "ClickUp/_daily",
+  "terminology": { "avoid": ["епік"], "use": ["задача", "під-задача"] },
+  "language": "uk"
+}
