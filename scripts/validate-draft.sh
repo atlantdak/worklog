@@ -13,15 +13,20 @@ draft="${1:?draft path required}"; logged="${2:-/dev/null}"
 # Extract JSON between the worklog:meta markers.
 meta="$(awk '/worklog:meta -->/{f=0} f; /<!-- worklog:meta/{f=1}' "$draft")"
 printf '%s' "$meta" | jq -e . >/dev/null 2>&1 || wl_die "no valid worklog:meta JSON block"
+# Guard the shape before any `.entries`-walking jq runs, so a malformed block fails
+# as a clean usage error (exit 2) instead of leaking a raw jq error.
+printf '%s' "$meta" | jq -e '(.entries|type)=="array" and (.entries|length>0)' >/dev/null 2>&1 \
+  || wl_die "worklog:meta has no non-empty entries[] array"
 
 errs=0
 note() { printf 'INVALID: %s\n' "$1" >&2; errs=1; }
 
 # Per-entry structural + date rule, via jq returning offending indexes.
+# sp must be a positive whole number (no fractions).
 bad_struct="$(printf '%s' "$meta" | jq -r '
   [ .entries | to_entries[]
     | select((.value.title|type)!="string"
-        or (.value.sp|type)!="number" or .value.sp <= 0
+        or (.value.sp|type)!="number" or .value.sp <= 0 or (.value.sp != (.value.sp|floor))
         or (.value.status|IN("done","in progress")|not)
         or (.value.start|type)!="string")
     | .key ] | join(",")')"
