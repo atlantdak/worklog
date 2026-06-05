@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# Fake gh: ignores args, returns a fixed PR list as JSON (what `gh pr list --json` emits).
+cat <<'JSON'
+[
+  {"number":186,"title":"feat(labels): csv import","mergedAt":"2026-06-04T10:00:00Z","createdAt":"2026-06-03T09:00:00Z","url":"https://github.com/OWNER/REPO/pull/186","state":"MERGED"},
+  {"number":182,"title":"feat(labels): drag-drop modal","mergedAt":"2026-06-04T08:00:00Z","createdAt":"2026-06-03T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/182","state":"MERGED"}
+]
+JSON
