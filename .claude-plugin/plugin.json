@@ -1,0 +1,10 @@
+{
+  "name": "worklog",
+  "description": "End-of-day worklog mirror: gathers GitHub facts for a user-supplied window, writes review drafts, and after approval mirrors them into ClickUp.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dmytro Kishkin",
+    "email": "atlantdak@gmail.com"
+  },
+  "keywords": ["worklog", "clickup", "github", "workflow"]
+}
