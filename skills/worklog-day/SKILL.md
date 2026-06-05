@@ -42,9 +42,9 @@ Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh
 
 ## S1 — Gather (read-only)
 
-1. `sh "$SCRIPTS/collect-window.sh" <github_repo> <kind> <value>` → save stdout to
-   `$(sh "$SCRIPTS/lib.sh"...)`. Concretely: compute run dir via
-   `RUN=$(. "$SCRIPTS/lib.sh"; wl_run_dir <date-or-today>)` and write to `$RUN/window.json`.
+1. Compute the per-run dir, then gather. `lib.sh` is sourced, not executed:
+   `RUN=$(. "$SCRIPTS/lib.sh"; wl_run_dir <date-or-today>)`, then
+   `sh "$SCRIPTS/collect-window.sh" <github_repo> <kind> <value> > "$RUN/window.json"`.
 2. Read current ClickUp state for dedup + correct linking:
    `clickup_filter_tasks` with `list_ids:[clickup_list_id]`, `include_closed:true`,
    `subtasks:true`. From the returned tasks, extract every `#NNN` PR number already present in

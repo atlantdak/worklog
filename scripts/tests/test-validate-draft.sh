@@ -9,4 +9,6 @@ check "valid draft passes"          "sh '$v' '$fx/draft-ok.md' '$fx/logged-prs.t
 check "in-progress+due fails"       "! sh '$v' '$fx/draft-baddate.md' '$fx/logged-prs.txt'"
 check "dedup violation fails"       "! sh '$v' '$fx/draft-dupe.md' '$fx/logged-prs.txt'"
 check "prints SP total"             "sh '$v' '$fx/draft-ok.md' '$fx/logged-prs.txt' | grep -q 'SP total: 11'"
+check "missing entries[] fails"     "! sh '$v' '$fx/draft-noentries.md' '$fx/logged-prs.txt'"
+check "fractional sp fails"         "! sh '$v' '$fx/draft-fracsp.md' '$fx/logged-prs.txt'"
 exit $fail
