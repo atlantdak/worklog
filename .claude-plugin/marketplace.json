@@ -1,0 +1,20 @@
+{
+  "name": "worklog",
+  "description": "Local marketplace for the worklog end-of-day plugin.",
+  "owner": {
+    "name": "Dmytro Kishkin",
+    "email": "atlantdak@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "worklog",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "End-of-day worklog mirror into ClickUp from GitHub facts.",
+      "author": {
+        "name": "Dmytro Kishkin",
+        "email": "atlantdak@gmail.com"
+      }
+    }
+  ]
+}
