@@ -1,0 +1,6 @@
+{
+  "language": "uk",
+  "naming": { "scheme": "TASK-{n}", "sub": "TASK-{n}.{m}", "start_n": 1 },
+  "sp_calibration": "~14-15 SP per active day",
+  "terminology": { "avoid": ["епік"], "use": ["задача", "під-задача"] }
+}
