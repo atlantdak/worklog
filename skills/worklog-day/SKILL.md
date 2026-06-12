@@ -16,18 +16,34 @@ Resolve the plugin scripts dir once: it is this skill's `../../scripts` (i.e.
 
 ## Config
 
-Read `.claude/worklog.config.json` from the current project root. If absent → run
-**Onboarding** first. The config supplies: `github_repo`, `clickup_list_id`,
-`umbrella_task_id`, `assignee_id`, `naming`, `sp_calibration`, `drafts_dir`, `terminology`,
-`language`. Treat these as the only source of project-specific values — never hardcode IDs.
+Resolve the effective config with the script, never by reading a single file:
+`eff=$(sh "$SCRIPTS/resolve-config.sh" .)` (run from the project root). It layers
+**built-in defaults < global `~/.claude/worklog.config.json` < project
+`.claude/worklog.config.json`** and prints a provenance table to stderr — show that table
+to the user so the source of every value (project / global / built-in / dynamic) is visible.
 
-## Onboarding (first run in a project, no config)
+Identity is **dynamic, never hardcoded**:
+- `github_repo` — derived from the project's `git remote` when unset.
+- assignee — the **authenticated ClickUp user**, resolved at write time via
+  `clickup_resolve_assignees ["me"]`; a config `assignee_id` only *overrides* this (e.g. to
+  log on someone's behalf). So the skill works in any project as "log my work to my account".
 
-1. Derive `github_repo` from `git remote get-url origin` (strip to `OWNER/REPO`).
-2. Ask the user (AskUserQuestion) for: `clickup_list_id`, `assignee_id` (or "me" →
-   `clickup_resolve_assignees`), numbering `scheme`/`start_n`, `drafts_dir`, `language`.
-3. Copy `references/worklog.config.example.json`, fill the answers, write
-   `.claude/worklog.config.json`.
+The only genuinely per-project binding is `clickup_list_id` (+ optional `umbrella_task_id`);
+preferences (`language`, `naming`, `sp_calibration`, `terminology`, `drafts_dir`) live in the
+global config or built-in defaults. Treat the resolved `eff` as the only source of values —
+never hardcode IDs. If `resolve-config.sh` exits **3** (`NEEDS_ONBOARDING`) → run **Onboarding**.
+
+## Onboarding (first run in a project, no resolvable `clickup_list_id`)
+
+1. `github_repo` is auto-derived (git remote) — no question needed; confirm what was detected.
+2. Ask the user (AskUserQuestion) only for the binding: `clickup_list_id` (+ optional
+   `umbrella_task_id`). Do **not** ask for assignee (dynamic "me"), repo (auto), or
+   preferences (global/built-in) unless the user wants a per-project override.
+3. Write a **minimal** `.claude/worklog.config.json` (just the binding(s)) from
+   `references/worklog.config.project.example.json`. If the user wants non-default
+   preferences everywhere, offer to write/extend the global
+   `~/.claude/worklog.config.json` (template: `references/worklog.config.global.example.json`)
+   instead of repeating them per project.
 4. Ensure the consuming repo hides the fish: append `.claude/worklog.config.json` and the
    `drafts_dir` to that project's `.gitignore` (create if needed). Confirm to the user.
 5. Continue to S0.
@@ -44,7 +60,8 @@ Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh
 
 1. Compute the per-run dir, then gather. `lib.sh` is sourced, not executed:
    `RUN=$(. "$SCRIPTS/lib.sh"; wl_run_dir <date-or-today>)`, then
-   `sh "$SCRIPTS/collect-window.sh" <github_repo> <kind> <value> > "$RUN/window.json"`.
+   `sh "$SCRIPTS/collect-window.sh" <github_repo-from-eff> <kind> <value> > "$RUN/window.json"`
+   (use the `github_repo` from the resolved `eff`).
    The window is scoped to **your** GitHub account — resolved at runtime from
    `gh api user`, never hardcoded — so a teammate's PR merged in the same window is
    not mirrored as your work. To mirror someone else's PRs, or to include every
@@ -73,17 +90,21 @@ Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh
 
 ## S3 — Write (only after approval)
 
+First resolve the assignee once: if `eff.assignee_id` is set use `[eff.assignee_id]`
+(config override); otherwise call `clickup_resolve_assignees ["me"]` and use the returned id
+— the authenticated ClickUp user. Call this `ASSIGNEE`.
+
 For each entry in the approved `worklog:meta`:
-- `target=="new"` → `clickup_create_task` with `list_id=clickup_list_id`,
+- `target=="new"` → `clickup_create_task` with `list_id=eff.clickup_list_id`,
   `name=<title>`, `markdown_description=<human block for this entry>`,
-  `assignees=[assignee_id]`, `start_date`, and `due_date` ONLY if `status=="done"`,
+  `assignees=ASSIGNEE`, `start_date`, and `due_date` ONLY if `status=="done"`,
   `status` mapped to the list's status name (done → the list's completed status; in progress →
   its in-progress status — read names via `clickup_get_list` if unsure).
 - `target` is an existing id → `clickup_update_task` (update description/dates/status; set
   `due_date` when moving to done). Do not rename manager-owned tasks; add a
   `clickup_create_task_comment` instead when only annotating.
 - Links: after create, `clickup_add_task_link` between the entry and its `parent`
-  (resolve `"umbrella"` → `umbrella_task_id`), and any real cross-links.
+  (resolve `"umbrella"` → `eff.umbrella_task_id`), and any real cross-links.
 - After each successful create, append its PR numbers to `$RUN/logged-prs.txt` (prevents
   intra-run dupes).
 
