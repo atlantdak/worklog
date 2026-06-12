@@ -1,12 +1,19 @@
 #!/usr/bin/env sh
-# Fake gh: ignores args, returns a fixed PR list as JSON (what `gh pr list --json` emits).
-# Includes a MERGED pair on 2026-06-04, one OPEN (kept by number scopes), and one
-# CLOSED-unmerged (must be dropped by number scopes).
+# Fake gh. Two shapes:
+#   `gh api user ...`  -> a fixed login (so the author-scoping path resolves)
+#   `gh pr list ...`   -> a fixed PR list as JSON (what `gh pr list --json` emits).
+# The PR list includes a MERGED pair on 2026-06-04, one OPEN (kept by number scopes),
+# and one CLOSED-unmerged (must be dropped by number scopes). All other args ignored.
+if [ "${1:-}" = "api" ]; then
+  # Mimic `gh api user --jq '.login'` → bare login on stdout.
+  printf 'testuser\n'
+  exit 0
+fi
 cat <<'JSON'
 [
-  {"number":186,"title":"feat(labels): csv import","mergedAt":"2026-06-04T10:00:00Z","createdAt":"2026-06-03T09:00:00Z","url":"https://github.com/OWNER/REPO/pull/186","state":"MERGED"},
-  {"number":182,"title":"feat(labels): drag-drop modal","mergedAt":"2026-06-04T08:00:00Z","createdAt":"2026-06-03T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/182","state":"MERGED"},
-  {"number":190,"title":"wip: open work","mergedAt":null,"createdAt":"2026-06-04T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/190","state":"OPEN"},
-  {"number":150,"title":"abandoned","mergedAt":null,"createdAt":"2026-06-02T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/150","state":"CLOSED"}
+  {"number":186,"title":"feat(labels): csv import","mergedAt":"2026-06-04T10:00:00Z","createdAt":"2026-06-03T09:00:00Z","url":"https://github.com/OWNER/REPO/pull/186","state":"MERGED","author":{"login":"testuser"}},
+  {"number":182,"title":"feat(labels): drag-drop modal","mergedAt":"2026-06-04T08:00:00Z","createdAt":"2026-06-03T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/182","state":"MERGED","author":{"login":"testuser"}},
+  {"number":190,"title":"wip: open work","mergedAt":null,"createdAt":"2026-06-04T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/190","state":"OPEN","author":{"login":"testuser"}},
+  {"number":150,"title":"abandoned","mergedAt":null,"createdAt":"2026-06-02T07:00:00Z","url":"https://github.com/OWNER/REPO/pull/150","state":"CLOSED","author":{"login":"testuser"}}
 ]
 JSON

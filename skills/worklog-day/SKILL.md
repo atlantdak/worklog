@@ -45,6 +45,12 @@ Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh
 1. Compute the per-run dir, then gather. `lib.sh` is sourced, not executed:
    `RUN=$(. "$SCRIPTS/lib.sh"; wl_run_dir <date-or-today>)`, then
    `sh "$SCRIPTS/collect-window.sh" <github_repo> <kind> <value> > "$RUN/window.json"`.
+   The window is scoped to **your** GitHub account — resolved at runtime from
+   `gh api user`, never hardcoded — so a teammate's PR merged in the same window is
+   not mirrored as your work. To mirror someone else's PRs, or to include every
+   author, prefix the call with `WL_AUTHOR=<login>` / `WL_AUTHOR='*'`. Each entry in
+   `window.json` carries `author.login`; if you ever run with `WL_AUTHOR='*'`, surface
+   any non-self PR to the user before drafting rather than logging it silently.
 2. Read current ClickUp state for dedup + correct linking:
    `clickup_filter_tasks` with `list_ids:[clickup_list_id]`, `include_closed:true`,
    `subtasks:true`. From the returned tasks, extract every `#NNN` PR number already present in

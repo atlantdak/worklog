@@ -5,6 +5,12 @@
 #   KIND pr-single  VALUE=NUMBER            -> that one PR
 #   KIND pr-range   VALUE=NUMBER..NUMBER    -> inclusive PR-number range
 #   KIND since      VALUE=NUMBER            -> PRs with number >= VALUE
+#
+# PRs are scoped to YOUR GitHub account so a teammate's PR merged in the same
+# window is never mirrored as your work. The account is derived at runtime from
+# `gh api user` — no login is ever hardcoded. Override with:
+#   WL_AUTHOR=<login>   mirror a specific person's PRs instead
+#   WL_AUTHOR='*'       disable author scoping (every author in the window)
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 . "$here/lib.sh"
@@ -12,9 +18,19 @@ wl_need gh; wl_need jq
 
 repo="${1:?repo required}"; kind="${2:?kind required}"; value="${3:?value required}"
 
+# Whose work to mirror — the authenticated GitHub account by default (never hardcoded).
+author="${WL_AUTHOR:-$(gh api user --jq '.login' 2>/dev/null || true)}"
+[ -n "$author" ] || wl_die "could not resolve your GitHub login (run 'gh auth login', or set WL_AUTHOR=<login>)"
+
 # Pull a generous candidate set once, then filter in jq. Fields match gh's schema.
-raw="$(gh pr list --repo "$repo" --state all --limit 200 \
-        --json number,title,mergedAt,createdAt,url,state)"
+# `author` is carried through so the draft step can spot any non-self PR at a glance.
+if [ "$author" = "*" ]; then
+  raw="$(gh pr list --repo "$repo" --state all --limit 200 \
+          --json number,title,mergedAt,createdAt,url,state,author)"
+else
+  raw="$(gh pr list --repo "$repo" --state all --author "$author" --limit 200 \
+          --json number,title,mergedAt,createdAt,url,state,author)"
+fi
 
 # Number-based scopes keep OPEN (→ in progress) and MERGED (→ done) PRs but drop
 # CLOSED-unmerged (abandoned) ones, so they are never mirrored as real work.
