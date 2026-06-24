@@ -82,6 +82,10 @@ Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh
    (`new` vs an existing task id) and propose `sp`, `status` (merged → `done`; open → `in
    progress`), dates (date rule), `parent`, `prs`, `links`. The attach-vs-new choice is a
    PROPOSAL.
+   - **Voice & granularity:** write titles/descriptions for a manager (plain-language value,
+     not engineering detail) and consolidate the day's work into a few coherent deliverables
+     rather than one card per PR — see `references/format.md` → *Audience & voice* and
+     *Granularity (anti-spam)*, with the absolute rules in **Guardrails** below.
 2. Validate: `sh "$SCRIPTS/validate-draft.sh" <drafts_dir>/<date>.md "$RUN/logged-prs.txt"`.
    Fix any `INVALID:`/`ERROR:` until it prints `SP total: N`.
 3. Present to the user: the SP total, each proposed entry (target, title, status, dates, PRs),
@@ -120,3 +124,10 @@ List every created/updated task as `name → https://app.clickup.com/t/<id>`. Re
 - Never put the word «епік» (or the project's `terminology.avoid`) in any task.
 - Never invent SP/dates not in the approved draft.
 - No `time tracking` API — dates only.
+- Write for a manager, not an engineer: plain-language value, no internal refs (`ADR-…`), code
+  identifiers, or algorithm jargon in task names/descriptions — the PR links carry the detail.
+- Keep product / tool / plugin / theme names verbatim — they are proper nouns and stay in
+  canonical spelling regardless of `language`; never translate or transliterate. Respect the
+  draft language's correct spelling and diacritics elsewhere (e.g. for uk, «беклог» not «бэклог»).
+- Prefer fewer, consolidated entries (group the day's PRs into coherent deliverables) over many
+  granular per-PR tasks; keep genuinely unrelated deliverables distinct.
