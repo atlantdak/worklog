@@ -13,4 +13,7 @@ check "global example parses + prefs-only (no binding)" \
   "jq -e '.naming.scheme and (has(\"clickup_list_id\")|not)' '$root/references/worklog.config.global.example.json'"
 check "format.md has meta-schema anchor" "grep -q 'worklog:meta' '$root/references/format.md'"
 check "format.md states date rule" "grep -q 'done' '$root/references/format.md' && grep -q 'in progress' '$root/references/format.md'"
+check "format.md documents umbrellas (containers)" "grep -q 'containers' '$root/references/format.md'"
+check "format.md states voice-by-status" "grep -qi 'Voice-by-status' '$root/references/format.md'"
+check "format.md has Structure section" "grep -q 'Structure (umbrellas' '$root/references/format.md'"
 exit $fail

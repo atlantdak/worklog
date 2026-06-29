@@ -35,30 +35,65 @@ Field rules:
 - `status`: exactly `"done"` or `"in progress"`.
 - Date rule: `status=="done"` ⇒ both `start` and `due` present. `status=="in progress"` ⇒
   `start` present, `due` MUST be absent or null.
-- `parent`: `"umbrella"` (resolve to config `umbrella_task_id`), `"none"`, or a task id.
+- `parent`: `"umbrella"` (resolve to config `umbrella_task_id`), `"none"`, an umbrella code
+  declared in `containers` (`"TASK-NN"`), or an existing task id.
 - `prs`: array of integers; each must NOT appear in the run's `logged-prs.txt` (dedup).
 - `sp`: positive integer.
 
+**Umbrellas (`containers`, optional).** Alongside `entries` a draft MAY carry a `containers`
+array — **zero, one, or many** umbrella tasks that group the window's work by coherent effort
+(NOT necessarily one-per-day). Each container is `{title, status, start, due, parent,
+sp_rollup}`; `parent` is usually `"umbrella"` (the master task) and `sp_rollup` is the sum of
+its children's `sp`. Children point back with `parent: "<container TASK-code>"`. `validate-draft.sh`
+sums **only `entries[].sp`** — `sp_rollup` is display-only and is NOT double-counted. The same
+date/voice rules apply to a container by its own `status` (an umbrella with any unfinished child
+is `in progress` → no `due`). See *Structure* below for when to use one.
+
 ### 2. Human block (what the user reviews)
 
-Below the machine block, plain markdown the user reads. Per entry use the description
-template:
+Below the machine block, plain markdown the user reads. **Pick the template by `status`** — the
+prose must match the state, never describe unfinished work as if shipped:
+
+**`done`** — past tense; the outcome is real, concrete facts and the closed date are correct:
 
 ```
 ## 🎯 Story Points: N
 
-**↳ Огляд:** [★ Umbrella](UMBRELLA_URL)        ← epics/standalone
-**↳ Задача:** [TASK-NN — title](PARENT_URL)    ← sub-entries
+**↳ Umbrella:** [★ Master task](UMBRELLA_URL)   ← standalone
+**↳ Parent:** [TASK-NN — title](PARENT_URL)     ← sub-entries
 
-**Що зроблено.** …
-**Результат.** …
+**What was done.** problem → what was delivered.
+**Result.** the outcome that landed (concrete results / verification OK).
 
 **🔗 Pull request:** [#186](URL)               ← one PR
 **🔗 Pull requests:** [#180](URL), [#182](URL)  ← several
 ```
 
-Terminology: never the word «епік»; use «задача»/«під-задача» (or the consuming project's
-`terminology` config). Language follows config `language`.
+**`in progress`** — present/continuous tense; say what remains, claim nothing as finished:
+
+```
+## 🎯 Story Points: N · 🚧 in progress
+
+**↳ Umbrella:** [★ Master task](UMBRELLA_URL)   ← standalone
+**↳ Parent:** [TASK-NN — title](PARENT_URL)     ← sub-entries
+
+**What we're doing.** what we're building and why it matters (present tense).
+**Status.** what is in place so far and what still remains. End with an explicit
+not-yet-done note. NO closed date range and NO completion claims ("done / shipped /
+all checks green / in final review") — those read as finished.
+
+**🔗 Pull request:** [#298](URL)
+```
+
+Render all headings/labels in the configured `language` (examples above are in English; a
+draft in another language uses its own equivalents — keep the structure identical).
+
+Voice-by-status rule (mirrors the Date rule): completion claims and a **closed** date period
+(e.g. "Jun 25–27") belong to `done` only. For `in progress`, the period is open-ended (e.g.
+"from Jun 25, in progress") and the start date lives in the field, not as a finished span.
+
+Terminology: never use a word in the project's `terminology.avoid`; prefer its
+`terminology.use` wording. Language follows config `language`.
 
 ### Audience & voice (titles + descriptions)
 
@@ -82,18 +117,37 @@ the code and the linked PR — the prose carries the value, the PR link carries 
 
 ### Granularity (anti-spam)
 
-**Don't emit one card per PR.** Group the day's PRs into a few coherent deliverables
-(subtasks): merge work that is genuinely a single deliverable carried across several PRs or
-repos into one entry, and fold trivial polish (a one-line tweak, a short docs note) into a
-related entry rather than its own card. The common-case default is one container task per
-active day, but keep genuinely unrelated deliverables distinct. Aim for entries a manager
-would recognise as **distinct results** — prefer fewer meaningful entries over many granular
-ones.
+**Don't emit one card per PR.** Group the window's PRs into a few coherent deliverables: merge
+work that is genuinely a single deliverable carried across several PRs or repos into one entry,
+and fold trivial polish (a one-line tweak, a short docs note) into a related entry rather than
+its own card. Aim for entries a manager would recognise as **distinct results** — prefer fewer
+meaningful entries over many granular ones.
+
+### Structure (umbrellas, subtasks, standalone)
+
+Shape the window around **coherent efforts/themes**, not around the calendar. A multi-theme or
+multi-day window normally has **several umbrellas, one per theme** — do not force everything
+under a single container. Decide per effort:
+
+- **Umbrella + subtasks** — one theme that breaks into 2+ distinct pieces (e.g. a feature area
+  worked across several PRs/days). Make a `containers` entry; hang the pieces off it via
+  `parent`. A single large effort can be its own umbrella when it has real sub-parts.
+- **Standalone task** — one cohesive deliverable (often a single PR) with no natural sub-parts.
+  `parent: "umbrella"` (link to the master), no children.
+- **Fold in** — trivial/related polish goes inside a related entry, never its own card. Several
+  small unrelated fixes can be **compiled into one** "small fixes" task (list them in the body).
+
+The split is a **proposal you present at the gate** — the user may prefer to merge themes,
+promote one to its own umbrella, or compile small items differently. Offer the choice rather
+than deciding silently. Keep genuinely unrelated deliverables distinct.
 
 ## Date rule (canonical)
 
 - `done` → set `start_date` AND `due_date`.
 - `in progress` → set `start_date` only; never set `due_date` (due = completion date).
+
+The same split governs the **prose**, not just the date fields: see *Voice-by-status* above —
+`in progress` text stays present-tense with no closed date range and no completion claims.
 
 ## Story-point calibration (default)
 

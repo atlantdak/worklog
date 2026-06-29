@@ -83,9 +83,18 @@ Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh
    progress`), dates (date rule), `parent`, `prs`, `links`. The attach-vs-new choice is a
    PROPOSAL.
    - **Voice & granularity:** write titles/descriptions for a manager (plain-language value,
-     not engineering detail) and consolidate the day's work into a few coherent deliverables
+     not engineering detail) and consolidate the window's work into a few coherent deliverables
      rather than one card per PR — see `references/format.md` → *Audience & voice* and
      *Granularity (anti-spam)*, with the absolute rules in **Guardrails** below.
+   - **Structure:** group by coherent theme/effort, not by calendar — a multi-theme/multi-day
+     window may carry **several umbrellas** (`containers`), each with its own subtasks; a big
+     single effort can be its own umbrella; trivial/related fixes fold (or compile) into one
+     task. Present the chosen split at the gate so the user can re-group it. See
+     `references/format.md` → *Structure*.
+   - **Voice by status:** `done` entries are past-tense (what was done + result, concrete
+     results, closed dates); `in progress` entries are present-tense (what we're doing + status,
+     what still remains) with no closed date range and no completion claims. Render headings in
+     the configured `language`. See `references/format.md`.
 2. Validate: `sh "$SCRIPTS/validate-draft.sh" <drafts_dir>/<date>.md "$RUN/logged-prs.txt"`.
    Fix any `INVALID:`/`ERROR:` until it prints `SP total: N`.
 3. Present to the user: the SP total, each proposed entry (target, title, status, dates, PRs),
@@ -98,17 +107,25 @@ First resolve the assignee once: if `eff.assignee_id` is set use `[eff.assignee_
 (config override); otherwise call `clickup_resolve_assignees ["me"]` and use the returned id
 — the authenticated ClickUp user. Call this `ASSIGNEE`.
 
-For each entry in the approved `worklog:meta`:
-- `target=="new"` → `clickup_create_task` with `list_id=eff.clickup_list_id`,
-  `name=<title>`, `markdown_description=<human block for this entry>`,
-  `assignees=ASSIGNEE`, `start_date`, and `due_date` ONLY if `status=="done"`,
-  `status` mapped to the list's status name (done → the list's completed status; in progress →
-  its in-progress status — read names via `clickup_get_list` if unsure).
+**Create umbrellas (`containers`) FIRST**, capture each returned id, then create the entries —
+a subtask must reference its parent's real id. For each `target=="new"` task:
+- `clickup_create_task` with `list_id=eff.clickup_list_id`, `name=<title>`,
+  `markdown_description=<human block for this entry>`, `assignees=ASSIGNEE`, `start_date`, and
+  `due_date` ONLY if `status=="done"`, `status` mapped to the list's status name (done → the
+  list's completed status; in progress → its in-progress status — read names via
+  `clickup_get_list` if unsure).
+- **Nesting — match how the board already nests** (inspect one existing subtask in S1):
+  - **A subtask** (its `parent` is an umbrella code) → pass the **native** `parent=<umbrella id>`
+    on `clickup_create_task`. Do NOT link it — native nesting is the relationship.
+  - **An umbrella or standalone task** (`parent=="umbrella"`) → create top-level (no `parent`),
+    then `clickup_add_task_link` it to `eff.umbrella_task_id` (a cross-list link, not nesting).
+  - **Fallback:** if the workspace rejects native subtasks ("Cannot make subtasks…"), create the
+    subtask top-level and `clickup_add_task_link` it to its parent instead (the `TASK-NN.m` name
+    already encodes the level).
 - `target` is an existing id → `clickup_update_task` (update description/dates/status; set
   `due_date` when moving to done). Do not rename manager-owned tasks; add a
   `clickup_create_task_comment` instead when only annotating.
-- Links: after create, `clickup_add_task_link` between the entry and its `parent`
-  (resolve `"umbrella"` → `eff.umbrella_task_id`), and any real cross-links.
+- Real **cross-links** to other tickets → `clickup_add_task_link`.
 - After each successful create, append its PR numbers to `$RUN/logged-prs.txt` (prevents
   intra-run dupes).
 
@@ -121,7 +138,7 @@ List every created/updated task as `name → https://app.clickup.com/t/<id>`. Re
 
 - Never write to ClickUp before S2 approval.
 - Never rename/rewrite manager-owned tasks — comment only.
-- Never put the word «епік» (or the project's `terminology.avoid`) in any task.
+- Never put a word from the project's `terminology.avoid` in any task.
 - Never invent SP/dates not in the approved draft.
 - No `time tracking` API — dates only.
 - Write for a manager, not an engineer: plain-language value, no internal refs (`ADR-…`), code
@@ -129,5 +146,11 @@ List every created/updated task as `name → https://app.clickup.com/t/<id>`. Re
 - Keep product / tool / plugin / theme names verbatim — they are proper nouns and stay in
   canonical spelling regardless of `language`; never translate or transliterate. Respect the
   draft language's correct spelling and diacritics elsewhere (e.g. for uk, «беклог» not «бэклог»).
-- Prefer fewer, consolidated entries (group the day's PRs into coherent deliverables) over many
-  granular per-PR tasks; keep genuinely unrelated deliverables distinct.
+- Prefer fewer, consolidated entries (group the window's PRs into coherent deliverables) over
+  many granular per-PR tasks; keep genuinely unrelated deliverables distinct.
+- Match the prose to the status (mirror of the date rule): an `in progress` entry is present-
+  tense (what we're doing + status), states what still remains, and carries NO closed date range
+  and NO completion claim ("done / shipped / all checks green / in final review"). Concrete
+  results and a closed period belong to `done` only.
+- Don't force one umbrella: a multi-theme/multi-day window may need several umbrellas (or none);
+  propose the structure at the gate instead of deciding silently.

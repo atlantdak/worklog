@@ -10,4 +10,7 @@ for s in "S0" "S1" "S2" "S3" "S4" "Onboarding" "collect-window.sh" "validate-dra
   check "mentions $s" "grep -q '$s' '$f'"
 done
 check "states no-write-before-approval" "grep -qi 'never write' '$f' || grep -qi 'не пиши' '$f'"
+check "S3 nests subtasks natively" "grep -qi 'native' '$f'"
+check "mentions umbrellas/containers structure" "grep -q 'containers' '$f'"
+check "states voice by status" "grep -qi 'Voice by status' '$f'"
 exit $fail
