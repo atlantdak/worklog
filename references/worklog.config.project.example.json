@@ -7,5 +7,12 @@
       "done": "SECTION_GID",
       "in progress": "SECTION_GID"
     }
+  },
+  "sections": {
+    "backlog": "<gid>",
+    "to_do": "<gid>",
+    "in_progress": "<gid>",
+    "review": "<gid>",
+    "done": "<gid>"
   }
 }

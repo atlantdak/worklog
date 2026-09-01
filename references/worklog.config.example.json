@@ -4,9 +4,28 @@
   "clickup_list_id": "000000000000",
   "umbrella_task_id": "",
   "assignee_id": "",
-  "naming": { "scheme": "TASK-{n}", "sub": "TASK-{n}.{m}", "start_n": 1 },
+  "naming": {
+    "scheme": "TASK-{n}",
+    "sub": "TASK-{n}.{m}",
+    "start_n": 1
+  },
   "sp_calibration": "~14-15 SP per active day",
   "drafts_dir": "worklog/_daily",
-  "terminology": { "avoid": ["епік"], "use": ["задача", "під-задача"] },
-  "language": "uk"
+  "terminology": {
+    "avoid": [
+      "епік"
+    ],
+    "use": [
+      "задача",
+      "під-задача"
+    ]
+  },
+  "language": "uk",
+  "sections": {
+    "backlog": "<gid>",
+    "to_do": "<gid>",
+    "in_progress": "<gid>",
+    "review": "<gid>",
+    "done": "<gid>"
+  }
 }
