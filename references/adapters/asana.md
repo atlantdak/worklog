@@ -27,13 +27,40 @@ actually returned.
 | --- | --- | --- |
 | `asana.project_gid` | yes | the project every task is created in |
 | `asana.workspace_gid` | no | only needed to build permalinks by hand |
-| `asana.section_map` | no | `{"done": "<gid>", "in progress": "<gid>"}` |
+| `sections` | yes | все пять канонических ключей ядра → gid секции |
 | `umbrella_task_id` | no | master task that top-level entries hang under |
 | `assignee_id` | no | pins the assignee instead of the authenticated user |
 
-When `section_map` lacks a status, read the live sections with `get_project`
-(`include_sections: true`) and use the section whose name matches; show the user
-which gid you picked so it can be pinned in the config afterwards.
+Section gids are read once with `get_project` (`include_sections: true`) and
+pinned in the config by the user. They are never guessed at write time.
+
+## Sections
+
+The core's five canonical keys map onto section gids. The mapping is required
+and complete: a missing key is a configuration error, not a licence to pick a
+section by its display name. Matching names are a coincidence, not a guarantee,
+and a wrong pick puts a card in the wrong column with nothing to show for it.
+
+| Core key | What it is here |
+| --- | --- |
+| `backlog` | a project section |
+| `to_do` | a project section |
+| `in_progress` | a project section |
+| `review` | a project section |
+| `done` | a project section **and** the `completed` flag |
+
+## Board operations
+
+| Operation | Call | Notes |
+| --- | --- | --- |
+| `find` | `get_task` with `task_id` | "not found" is an error of the call — tell it apart from a network failure |
+| `find_by_origin` | `search_tasks` with `text` = the marker and `projects_any` = the project | **verified live on 2026-09-01:** it matches a phrase that appears only in a task's description, and returns completed tasks too |
+| `place` | `add_projects` with the `section_id` from `sections[<key>]` | for `done`, also set `completed: true` |
+| `close` | `update_tasks` with `completed: true` and the text in `html_notes` | story points live inside the description text |
+
+Zero matches from `find_by_origin` means "no card yet, create one". More than
+one is a stop: the marker has stopped being unique, and picking the first is
+how a second card quietly becomes the wrong one.
 
 ## Assignee
 

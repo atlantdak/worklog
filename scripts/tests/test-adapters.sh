@@ -35,6 +35,26 @@ for f in "$dir"/*.md; do
     check "$b: has section $s" "grep -q '^## $s' '$f'"
   done
 
+  for s in "Board operations" Sections; do
+    check "$b: has section $s" "grep -q '^## $s' '$f'"
+  done
+
+  # The four operations the board flow calls through the adapter.
+  for op in find find_by_origin place close; do
+    check "$b: documents operation $op" "grep -q '\`$op\`' '$f'"
+  done
+
+  # Five canonical keys, snake_case. A key spelled with a space is exactly the
+  # defect this check exists to keep out.
+  for k in backlog to_do in_progress review done; do
+    check "$b: maps section key $k" "grep -q '\`$k\`' '$f'"
+  done
+  check "$b: no space-spelled section key" "! grep -q '\"in progress\"' '$f'"
+
+  # Guessing a section by display name is removed: matching names are a
+  # coincidence, not a guarantee.
+  check "$b: does not guess sections by name" "! grep -qi 'whose name matches' '$f'"
+
   # The assignee is always the authenticated user, never a hardcoded id.
   check "$b: assignee is dynamic (\"me\")" "grep -q '\"me\"' '$f'"
 

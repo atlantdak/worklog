@@ -26,6 +26,7 @@ builtin="$(jq -n --arg lang "${WL_BUILTIN_LANG:-en}" '{
   naming:        { scheme: "TASK-{n}", sub: "TASK-{n}.{m}", start_n: 1 },
   sp_calibration:"~14-15 SP per active day",
   drafts_dir:    "worklog/_daily",
+  plans_dir:     "docs/superpowers/plans",
   terminology:   { avoid: [], use: [] },
   language:      $lang
 }')"
@@ -134,6 +135,19 @@ done
 if [ -n "$missing" ]; then
   printf 'NEEDS_ONBOARDING: tracker %s needs:%s (set them in %s)\n' "$tracker" "$missing" "$project" >&2
   printf '%s' "$eff"; exit 3
+fi
+
+# sections: either absent (the board flow is unused) or complete. A half-filled
+# map would fail mid-write, and the write is the expensive half — so it fails
+# here, before any work is done, and names what is missing.
+if printf '%s' "$eff" | jq -e 'has("sections")' >/dev/null 2>&1; then
+  sec_missing="$(printf '%s' "$eff" | jq -r '
+    ["backlog","to_do","in_progress","review","done"]
+    - (.sections | keys) | join(", ")')"
+  if [ -n "$sec_missing" ]; then
+    printf 'NEEDS_ONBOARDING: sections is missing: %s (set them in %s)\n' "$sec_missing" "$project" >&2
+    printf '%s' "$eff"; exit 3
+  fi
 fi
 
 printf '%s' "$eff"

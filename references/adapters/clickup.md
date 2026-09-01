@@ -26,6 +26,32 @@ board's vocabulary is, and how the neutral draft contract lands on it.
 | `umbrella_task_id` | no | master task that top-level entries are linked to |
 | `assignee_id` | no | pins the assignee instead of the authenticated user |
 
+## Sections
+
+There are no sections here — there are list statuses, and the user defines
+them. So the core guarantees nothing and requires instead: the five canonical
+keys map onto statuses that exist in the list, and where a status for a key is
+missing the user creates one.
+
+| Core key | What it is here |
+| --- | --- |
+| `backlog` | a list status |
+| `to_do` | a list status |
+| `in_progress` | a list status |
+| `review` | a list status |
+| `done` | the list status that closes a task |
+
+## Board operations
+
+| Operation | Call | Notes |
+| --- | --- | --- |
+| `find` | `clickup_get_task` by id | "not found" is distinct from a network failure |
+| `find_by_origin` | `clickup_filter_tasks` over the list, then an exact comparison of the marker | **not verified against a live list.** Until it is, this branch of the idempotency scheme is unproven and must not be implemented |
+| `place` | `clickup_update_task` with the status from `sections[<key>]` | |
+| `close` | `clickup_update_task` with the status from `sections.done` | |
+
+More than one match is a stop, never a choice.
+
 ## Assignee
 
 Resolve once per run, before the first write:

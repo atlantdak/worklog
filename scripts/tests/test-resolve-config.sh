@@ -88,5 +88,32 @@ JSON
 WL_GLOBAL_CONFIG=/nonexistent sh "$rc" "$proj" >/dev/null 2>&1 && rcI=0 || rcI=$?
 check "I: unknown tracker exits 2" "[ $rcI -eq 2 ]"
 
+# --- Case J: plans_dir has a built-in default.
+cat > "$proj/.claude/worklog.config.json" <<'JSON'
+{ "clickup_list_id": "L1", "github_repo": "O/R" }
+JSON
+effJ="$tmp/j.json"
+WL_GLOBAL_CONFIG=/nonexistent sh "$rc" "$proj" > "$effJ" 2>/dev/null
+check "J: plans_dir default" "jq -e '.plans_dir==\"docs/superpowers/plans\"' '$effJ'"
+
+# --- Case K: a complete five-key sections map resolves.
+cat > "$proj/.claude/worklog.config.json" <<'JSON'
+{ "clickup_list_id": "L1", "github_repo": "O/R",
+  "sections": { "backlog":"b", "to_do":"t", "in_progress":"i", "review":"r", "done":"d" } }
+JSON
+effK="$tmp/k.json"
+WL_GLOBAL_CONFIG=/nonexistent sh "$rc" "$proj" > "$effK" 2>/dev/null
+check "K: five keys survive" "jq -e '.sections | length == 5' '$effK'"
+
+# --- Case L: an incomplete sections map is a configuration error, not a guess.
+cat > "$proj/.claude/worklog.config.json" <<'JSON'
+{ "clickup_list_id": "L1", "github_repo": "O/R",
+  "sections": { "done":"d", "in_progress":"i" } }
+JSON
+WL_GLOBAL_CONFIG=/nonexistent sh "$rc" "$proj" >/dev/null 2>&1 && rcL=0 || rcL=$?
+check "L: incomplete sections exits 3" "[ $rcL -eq 3 ]"
+check "L: the missing keys are named" \
+  "WL_GLOBAL_CONFIG=/nonexistent sh '$rc' '$proj' 2>&1 >/dev/null | grep -q backlog"
+
 rm -rf "$tmp"
 exit $fail

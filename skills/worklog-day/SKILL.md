@@ -132,6 +132,14 @@ English and Russian phrasings are accepted; the window is the same either way:
 
 ## S3 — Write (only after approval)
 
+**A plan already on the board closes its own card.** If the work belongs to a plan
+carrying a `Board:` line, do not create a second card for it: read the id from that
+line and use the adapter's `close` operation on the existing card, writing the result
+text and the story points into it. A card in `Backlog` or `In Progress` that is never
+closed and a fresh `Done` card describing the same work are two records of one thing,
+which is exactly what the board flow exists to prevent. Everything below applies to
+work that has no plan behind it.
+
 Resolve the assignee once, per the adapter's *Assignee* section: `eff.assignee_id` when the
 config pins it, otherwise the authenticated tracker user (`"me"`). Call it `ASSIGNEE`.
 
