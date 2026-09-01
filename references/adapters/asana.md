@@ -61,9 +61,14 @@ them; a subtask created elsewhere without project membership will not appear.
 | `title` | `name` |
 | human block | `html_notes` (single `<body>` root) |
 | — | `assignee` = `"me"` (or the pinned override) |
-| `start` | `start_on` |
+| `start` | `start_on` — **only** when `status == "done"` (see below) |
 | `due` | `due_on` — **only** when `status == "done"` |
 | `status` | `section_id` from `section_map` + `completed: true` when done |
+
+Asana refuses `start_on` without `due_on` — on create just as on update. An
+`in progress` entry has no completion date by contract, so it carries **no dates
+at all**: put the start in the prose instead ("in progress since Sep 1"), which
+is what the human block says anyway.
 
 Allowed tags in `html_notes`: `<body> <strong> <em> <u> <s> <code> <ol> <ul>
 <li> <a> <blockquote> <pre> <h1> <h2> <hr/> <img>`. Anything else — or malformed
@@ -107,11 +112,15 @@ There is no task-link primitive: cross-references go into `html_notes` as
 - A task sitting in the Done section still reports `completed: false`. The flag
   and the section are independent — that is why closing sets both.
 - There is no story-points field on the board: SP go into the description text.
-- On update, `start_on` may only be set when `due_on` is present. For an
-  in-progress entry set `start_on` at create time and leave `due_on` unset.
+- `start_on` may only be set when `due_on` is present — on create too, not just
+  on update (`bad_request: You must provide due_on or due_at when setting
+  start_on`). Hence: dates for `done` entries only.
 - `html_notes` must be well-formed XML with exactly one `<body>` root; unclosed
-  tags fail the whole batch.
-- `add_projects` with a `section_id` for a task already in the project may be a
-  no-op. If the card does not move, fall back to `remove_projects` followed by
-  `add_projects` with the target section.
+  tags fail the whole batch. `<p>` is **not** allowed — separate paragraphs with
+  blank lines inside `<body>`.
+- `add_projects` with a `section_id` does move a task that is already in the
+  project — verified on the board, no `remove_projects` dance needed. Keep that
+  fallback in mind only if some board ever refuses the move.
+- Subtasks created with `project_id` show up in `get_tasks` for the project, so
+  the *Read state* call covers them — verified.
 - No time tracking API: dates only, even though the board carries hour fields.
