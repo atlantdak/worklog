@@ -7,4 +7,9 @@ check "command file exists"        "[ -s '$f' ]"
 check "has frontmatter description" "grep -q '^description:' '$f'"
 check "invokes worklog-day skill"  "grep -q 'worklog-day' '$f'"
 check "passes \$ARGUMENTS"          "grep -q 'ARGUMENTS' '$f'"
+check "allows clickup write tools" "grep -q 'mcp__clickup__clickup_create_task' '$f'"
+check "allows asana write tools"   "grep -q 'mcp__asana__create_tasks' '$f'"
+check "allows asana update+comment" \
+  "grep -q 'mcp__asana__update_tasks' '$f' && grep -q 'mcp__asana__add_comment' '$f'"
+check "description is tracker-neutral" "! grep -q '^description:.*ClickUp' '$f'"
 exit $fail

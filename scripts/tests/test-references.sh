@@ -8,7 +8,7 @@ check "config example parses" "jq -e . '$root/references/worklog.config.example.
 check "config has clickup_list_id key" "jq -e 'has(\"clickup_list_id\")' '$root/references/worklog.config.example.json'"
 check "config has naming.scheme" "jq -e '.naming.scheme' '$root/references/worklog.config.example.json'"
 check "project example parses + binding-only" \
-  "jq -e 'has(\"clickup_list_id\") and (has(\"language\")|not)' '$root/references/worklog.config.project.example.json'"
+  "jq -e 'has(\"tracker\") and (has(\"language\")|not)' '$root/references/worklog.config.project.example.json'"
 check "global example parses + prefs-only (no binding)" \
   "jq -e '.naming.scheme and (has(\"clickup_list_id\")|not)' '$root/references/worklog.config.global.example.json'"
 check "format.md has meta-schema anchor" "grep -q 'worklog:meta' '$root/references/format.md'"
@@ -16,4 +16,10 @@ check "format.md states date rule" "grep -q 'done' '$root/references/format.md' 
 check "format.md documents umbrellas (containers)" "grep -q 'containers' '$root/references/format.md'"
 check "format.md states voice-by-status" "grep -qi 'Voice-by-status' '$root/references/format.md'"
 check "format.md has Structure section" "grep -q 'Structure (umbrellas' '$root/references/format.md'"
+check "format.md declares parent root" "grep -q '\"root\"' '$root/references/format.md'"
+check "example config declares tracker" "jq -e '.tracker' '$root/references/worklog.config.example.json'"
+check "adapters exist for documented trackers" \
+  "[ -f '$root/references/adapters/clickup.md' ] && [ -f '$root/references/adapters/asana.md' ]"
+check "format.md drops legacy parent values" \
+  "! grep -qE 'parent.*\"(umbrella|none)\"' '$root/references/format.md'"
 exit $fail

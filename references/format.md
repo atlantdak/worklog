@@ -21,7 +21,7 @@ markers with `jq`:
       "status": "done",
       "start": "2026-06-04",
       "due": "2026-06-04",
-      "parent": "umbrella",
+      "parent": "root",
       "prs": [186],
       "links": ["https://github.com/OWNER/REPO/pull/186"]
     }
@@ -35,16 +35,17 @@ Field rules:
 - `status`: exactly `"done"` or `"in progress"`.
 - Date rule: `status=="done"` ⇒ both `start` and `due` present. `status=="in progress"` ⇒
   `start` present, `due` MUST be absent or null.
-- `parent`: `"umbrella"` (resolve to config `umbrella_task_id`), `"none"`, an umbrella code
-  declared in `containers` (`"TASK-NN"`), or an existing task id.
+- `parent`: `"root"` (a top-level entry), an umbrella code declared in `containers`
+  (`"TASK-NN"`), or an existing task id. The draft does NOT know whether the board has a
+  master task: when the config pins `umbrella_task_id`, the adapter additionally attaches
+  top-level entries to it; when it does not, they simply stay top-level.
 - `prs`: array of integers; each must NOT appear in the run's `logged-prs.txt` (dedup).
 - `sp`: positive integer.
 
 **Umbrellas (`containers`, optional).** Alongside `entries` a draft MAY carry a `containers`
 array — **zero, one, or many** umbrella tasks that group the window's work by coherent effort
 (NOT necessarily one-per-day). Each container is `{title, status, start, due, parent,
-sp_rollup}`; `parent` is usually `"umbrella"` (the master task) and `sp_rollup` is the sum of
-its children's `sp`. Children point back with `parent: "<container TASK-code>"`. `validate-draft.sh`
+sp_rollup}`; `parent` is `"root"` and `sp_rollup` is the sum of its children's `sp`. Children point back with `parent: "<container TASK-code>"`. `validate-draft.sh`
 sums **only `entries[].sp`** — `sp_rollup` is display-only and is NOT double-counted. The same
 date/voice rules apply to a container by its own `status` (an umbrella with any unfinished child
 is `in progress` → no `due`). See *Structure* below for when to use one.
@@ -59,7 +60,7 @@ prose must match the state, never describe unfinished work as if shipped:
 ```
 ## 🎯 Story Points: N
 
-**↳ Umbrella:** [★ Master task](UMBRELLA_URL)   ← standalone
+**↳ Umbrella:** [★ Master task](UMBRELLA_URL)   ← top-level, only if a master task is configured
 **↳ Parent:** [TASK-NN — title](PARENT_URL)     ← sub-entries
 
 **What was done.** problem → what was delivered.
@@ -74,7 +75,7 @@ prose must match the state, never describe unfinished work as if shipped:
 ```
 ## 🎯 Story Points: N · 🚧 in progress
 
-**↳ Umbrella:** [★ Master task](UMBRELLA_URL)   ← standalone
+**↳ Umbrella:** [★ Master task](UMBRELLA_URL)   ← top-level, only if a master task is configured
 **↳ Parent:** [TASK-NN — title](PARENT_URL)     ← sub-entries
 
 **What we're doing.** what we're building and why it matters (present tense).
@@ -97,7 +98,7 @@ Terminology: never use a word in the project's `terminology.avoid`; prefer its
 
 ### Audience & voice (titles + descriptions)
 
-ClickUp entries are read by a **manager assessing delivered value**, not by engineers. Write
+Tracker entries are read by a **manager assessing delivered value**, not by engineers. Write
 every title and description in plain language a non-engineer understands: state the **problem →
 the outcome** and why it matters for the product or user. The implementation detail lives in
 the code and the linked PR — the prose carries the value, the PR link carries the trail.
@@ -133,7 +134,7 @@ under a single container. Decide per effort:
   worked across several PRs/days). Make a `containers` entry; hang the pieces off it via
   `parent`. A single large effort can be its own umbrella when it has real sub-parts.
 - **Standalone task** — one cohesive deliverable (often a single PR) with no natural sub-parts.
-  `parent: "umbrella"` (link to the master), no children.
+  `parent: "root"`, no children.
 - **Fold in** — trivial/related polish goes inside a related entry, never its own card. Several
   small unrelated fixes can be **compiled into one** "small fixes" task (list them in the body).
 
