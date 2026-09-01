@@ -39,6 +39,12 @@ bad_date="$(printf '%s' "$meta" | jq -r '
     | .key ] | join(",")')"
 [ -z "$bad_date" ] || note "date-rule violations (done needs due; in progress must not have due): [$bad_date]"
 
+# Contract v2: parent is "root" | "<container code>" | "<task id>". The pre-adapter
+# values "umbrella"/"none" leaked board layout into the draft and are now invalid.
+legacy="$(printf '%s' "$meta" | jq -r '
+  [ (.entries[]?, .containers[]?) | .parent? | select(. == "umbrella" or . == "none") ] | length')"
+[ "$legacy" -eq 0 ] || note "legacy parent value (\"umbrella\"/\"none\"); use \"root\""
+
 # Dedup: any PR already in logged-prs.txt.
 if [ -s "$logged" ]; then
   for pr in $(printf '%s' "$meta" | jq -r '.entries[].prs[]?'); do

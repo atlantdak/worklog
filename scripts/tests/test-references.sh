@@ -16,4 +16,7 @@ check "format.md states date rule" "grep -q 'done' '$root/references/format.md' 
 check "format.md documents umbrellas (containers)" "grep -q 'containers' '$root/references/format.md'"
 check "format.md states voice-by-status" "grep -qi 'Voice-by-status' '$root/references/format.md'"
 check "format.md has Structure section" "grep -q 'Structure (umbrellas' '$root/references/format.md'"
+check "format.md declares parent root" "grep -q '\"root\"' '$root/references/format.md'"
+check "format.md drops legacy parent values" \
+  "! grep -qE 'parent.*\"(umbrella|none)\"' '$root/references/format.md'"
 exit $fail
