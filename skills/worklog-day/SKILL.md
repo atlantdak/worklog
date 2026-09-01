@@ -139,8 +139,9 @@ config pins it, otherwise the authenticated tracker user (`"me"`). Call it `ASSI
 entries — a child must reference its parent's real id. For each entry:
 
 - `target == "new"` → the adapter's *Create* call with the title, the human block rendered per
-  `rich_text`, `ASSIGNEE`, the start date, the completion date ONLY when `status == "done"`,
-  and the status expressed per `status`.
+  `rich_text`, `ASSIGNEE`, the dates its *Create* section accepts (a completion date ONLY when
+  `status == "done"`; some trackers refuse a start date without one), and the status expressed
+  per `status`.
 - Placement follows `parent` and the adapter's *Nesting* section: a container code → a child of
   that container (with `nesting: native`, a real parent id — do not also link it); `"root"` →
   top level, and when `eff.umbrella_task_id` is set, attached to that master task the way the
