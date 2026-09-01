@@ -108,7 +108,7 @@
   рядом с целевым и переименовывает. `wl_sha256 <путь>` — печатает хеш одной
   строкой без имени файла.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 Дописать в конец `scripts/tests/test-lib.sh` перед `exit $fail`:
 
@@ -123,7 +123,7 @@ check "sha256 is stable"              "[ \"\$(wl_sha256 \"$t/f\")\" = \"\$(wl_sh
 rm -rf "$t"
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-lib.sh
@@ -131,7 +131,7 @@ sh scripts/tests/test-lib.sh
 
 Ожидается: `FAIL: atomic write replaces content` и далее — функции не определены.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 Дописать в `scripts/lib.sh`:
 
@@ -160,7 +160,7 @@ wl_sha256() {
 }
 ```
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-lib.sh
@@ -168,7 +168,7 @@ sh scripts/tests/test-lib.sh
 
 Ожидается: все `PASS`, выход 0.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/lib.sh scripts/tests/test-lib.sh
@@ -192,7 +192,7 @@ git commit -m "feat(lib): atomic write and bare sha256"
   `card` и `origin` равны `null`, когда строк нет. `id` равен `null` у единицы
   без маркера.
 
-- [ ] **Шаг 1: Написать фикстуры**
+- [x] **Шаг 1: Написать фикстуры**
 
 `scripts/tests/fixtures/plan-fresh.md`:
 
@@ -227,7 +227,7 @@ git commit -m "feat(lib): atomic write and bare sha256"
 - [ ] Шаг
 ```
 
-- [ ] **Шаг 2: Написать падающий тест**
+- [x] **Шаг 2: Написать падающий тест**
 
 `scripts/tests/test-plan-file.sh`:
 
@@ -258,7 +258,7 @@ check "missing file exits 2"       "! sh '$pf' read /nonexistent/x.md 2>/dev/nul
 exit $fail
 ```
 
-- [ ] **Шаг 3: Убедиться, что тест падает**
+- [x] **Шаг 3: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-plan-file.sh
@@ -266,7 +266,7 @@ sh scripts/tests/test-plan-file.sh
 
 Ожидается: все `FAIL` — скрипта нет.
 
-- [ ] **Шаг 4: Реализовать**
+- [x] **Шаг 4: Реализовать**
 
 `scripts/plan-file.sh`:
 
@@ -329,7 +329,7 @@ case "$cmd" in
 esac
 ```
 
-- [ ] **Шаг 5: Убедиться, что тест проходит**
+- [x] **Шаг 5: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-plan-file.sh
@@ -337,7 +337,7 @@ sh scripts/tests/test-plan-file.sh
 
 Ожидается: все `PASS`.
 
-- [ ] **Шаг 6: Коммит**
+- [x] **Шаг 6: Коммит**
 
 ```bash
 git add scripts/plan-file.sh scripts/tests/test-plan-file.sh scripts/tests/fixtures/plan-fresh.md scripts/tests/fixtures/plan-linked.md
@@ -359,7 +359,7 @@ git commit -m "feat(plan-file): read a plan into JSON"
   `plan-file.sh set-board <план> <tracker> <gid>`,
   `plan-file.sh set-marker <план> <номер-единицы> <id>` (нумерация с 1).
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 Дописать в `scripts/tests/test-plan-file.sh` перед `exit $fail`:
 
@@ -384,7 +384,7 @@ check "set-marker out of range fails" "! sh '$pf' set-marker \"$t/p.md\" 99 s9 2
 rm -rf "$t"
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-plan-file.sh
@@ -392,7 +392,7 @@ sh scripts/tests/test-plan-file.sh
 
 Ожидается: `FAIL` на каждой новой проверке — подкоманд нет.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 Заменить блок `case` в `scripts/plan-file.sh` на:
 
@@ -429,7 +429,7 @@ case "$cmd" in
 esac
 ```
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-plan-file.sh && sh scripts/tests/run-all.sh
@@ -437,7 +437,7 @@ sh scripts/tests/test-plan-file.sh && sh scripts/tests/run-all.sh
 
 Ожидается: все `PASS`, `ALL GREEN`.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/plan-file.sh scripts/tests/test-plan-file.sh
@@ -459,7 +459,7 @@ git commit -m "feat(plan-file): atomic header and marker writes"
   атомарно. `board-state.sh map-init <план> <tracker> <card> <origin>` — создаёт
   карту. Файл карты — `<план без .md>.board.json`.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 `scripts/tests/test-board-state.sh`:
 
@@ -490,7 +490,7 @@ rm -rf "$t"
 exit $fail
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-board-state.sh
@@ -498,7 +498,7 @@ sh scripts/tests/test-board-state.sh
 
 Ожидается: все `FAIL` — скрипта нет.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 `scripts/board-state.sh`:
 
@@ -541,7 +541,7 @@ case "$cmd" in
 esac
 ```
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-board-state.sh
@@ -549,7 +549,7 @@ sh scripts/tests/test-board-state.sh
 
 Ожидается: все `PASS`.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/board-state.sh scripts/tests/test-board-state.sh
@@ -572,7 +572,7 @@ git commit -m "feat(board-state): subtask map beside the plan"
   git), печатает новый путь. Перенос идемпотентен: файл уже там — успех без
   действия.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 Дописать в `scripts/tests/test-board-state.sh` перед `exit $fail`:
 
@@ -593,7 +593,7 @@ check "place is idempotent"     "sh '$bs' place \"$u/in-progress/p.md\" in_progr
 rm -rf "$u"
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-board-state.sh
@@ -601,7 +601,7 @@ sh scripts/tests/test-board-state.sh
 
 Ожидается: `FAIL` на всех новых проверках.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 Вставить в `scripts/board-state.sh` перед блоком `case` :
 
@@ -655,7 +655,7 @@ place() {
 Общая переменная `plan` здесь просто несёт его значение; переименовывать её не
 нужно, но и трактовать как файл нельзя.
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-board-state.sh && sh scripts/tests/run-all.sh
@@ -663,7 +663,7 @@ sh scripts/tests/test-board-state.sh && sh scripts/tests/run-all.sh
 
 Ожидается: все `PASS`, `ALL GREEN`.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/board-state.sh scripts/tests/test-board-state.sh
@@ -686,7 +686,7 @@ git commit -m "feat(board-state): move a plan into its section directory"
   `sections` — выход 3, тем же кодом, что и `NEEDS_ONBOARDING`: и то и другое
   означает «конфигурация не готова к работе».
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 Дописать в `scripts/tests/test-resolve-config.sh` перед `rm -rf "$tmp"`:
 
@@ -719,7 +719,7 @@ check "H: the missing keys are named" \
   "WL_GLOBAL_CONFIG=/nonexistent sh '$rc' '$proj' 2>&1 >/dev/null | grep -q backlog"
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-resolve-config.sh
@@ -727,7 +727,7 @@ sh scripts/tests/test-resolve-config.sh
 
 Ожидается: `FAIL: F`, `FAIL: G`, `FAIL: H` — ключей нет.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 В `scripts/resolve-config.sh` добавить `plans_dir` во встроенные значения:
 
@@ -761,7 +761,7 @@ fi
 }
 ```
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-resolve-config.sh && sh scripts/tests/test-references.sh
@@ -769,7 +769,7 @@ sh scripts/tests/test-resolve-config.sh && sh scripts/tests/test-references.sh
 
 Ожидается: все `PASS` в обоих.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/resolve-config.sh scripts/tests/test-resolve-config.sh references/worklog.config.example.json references/worklog.config.project.example.json
@@ -795,7 +795,7 @@ git commit -m "feat(config): plans_dir and a complete five-key sections map"
 Код 4 отдельный: «план изменился после показа» — не ошибка использования, а
 штатный отказ, и вызывающий обязан отличать его от отсутствия файла.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 `scripts/tests/test-board-preview.sh`:
 
@@ -830,7 +830,7 @@ rm -rf "$t"
 exit $fail
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-board-preview.sh
@@ -838,7 +838,7 @@ sh scripts/tests/test-board-preview.sh
 
 Ожидается: все `FAIL` — скрипта нет.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 `scripts/board-preview.sh`:
 
@@ -897,7 +897,7 @@ case "$cmd" in
 esac
 ```
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-board-preview.sh
@@ -906,7 +906,7 @@ sh scripts/tests/test-board-preview.sh
 Ожидается: все `PASS`. Особенно проверка «verify переживает запись числа» —
 она доказывает, что отпечаток считается по содержательной части.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/board-preview.sh scripts/tests/test-board-preview.sh
@@ -930,7 +930,7 @@ git commit -m "feat(board-preview): preview with a fingerprint gate"
 Журнал — наблюдение, а не состояние: его удаление не меняет поведения системы.
 Ни один скрипт не читает его, чтобы принять решение.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 `scripts/tests/test-board-journal.sh`:
 
@@ -960,7 +960,7 @@ rm -rf "$t"
 exit $fail
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-board-journal.sh
@@ -968,7 +968,7 @@ sh scripts/tests/test-board-journal.sh
 
 Ожидается: все `FAIL` — скрипта нет.
 
-- [ ] **Шаг 3: Реализовать**
+- [x] **Шаг 3: Реализовать**
 
 `scripts/board-journal.sh`:
 
@@ -1004,7 +1004,7 @@ jq -c -n --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg op "$op" \
   >> "$journal"
 ```
 
-- [ ] **Шаг 4: Убедиться, что тест проходит**
+- [x] **Шаг 4: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-board-journal.sh && sh scripts/tests/run-all.sh
@@ -1012,7 +1012,7 @@ sh scripts/tests/test-board-journal.sh && sh scripts/tests/run-all.sh
 
 Ожидается: все `PASS`, `ALL GREEN`.
 
-- [ ] **Шаг 5: Коммит**
+- [x] **Шаг 5: Коммит**
 
 ```bash
 git add scripts/board-journal.sh scripts/tests/test-board-journal.sh
@@ -1039,7 +1039,7 @@ git commit -m "feat(board-journal): append-only trail including failures"
 разрешён подбор секции по названию. У ClickUp секций нет вовсе — там статусы
 списка.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 Дописать в `scripts/tests/test-adapters.sh` внутрь цикла `for f in "$dir"/*.md`,
 сразу после проверки существующих разделов:
@@ -1066,7 +1066,7 @@ git commit -m "feat(board-journal): append-only trail including failures"
     "! grep -qi 'whose name matches' '$f'"
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-adapters.sh
@@ -1076,7 +1076,7 @@ sh scripts/tests/test-adapters.sh
 операциях, на ключах `backlog`, `to_do`, `review`, на `no space-spelled` и на
 `does not guess sections by name` — у Asana.
 
-- [ ] **Шаг 3: Реализовать — Asana**
+- [x] **Шаг 3: Реализовать — Asana**
 
 В `references/adapters/asana.md` заменить строку про `section_map` в таблице
 конфигурации на:
@@ -1122,7 +1122,7 @@ sh scripts/tests/test-adapters.sh
 нельзя.
 ```
 
-- [ ] **Шаг 4: Реализовать — ClickUp**
+- [x] **Шаг 4: Реализовать — ClickUp**
 
 В `references/adapters/clickup.md` добавить те же два раздела, с поправкой на
 устройство трекера:
@@ -1153,7 +1153,7 @@ sh scripts/tests/test-adapters.sh
 | `close` | `clickup_update_task` со статусом `sections.done` | |
 ```
 
-- [ ] **Шаг 5: Убедиться, что тест проходит**
+- [x] **Шаг 5: Убедиться, что тест проходит**
 
 ```
 sh scripts/tests/test-adapters.sh && sh scripts/tests/run-all.sh
@@ -1162,7 +1162,7 @@ sh scripts/tests/test-adapters.sh && sh scripts/tests/run-all.sh
 Ожидается: все `PASS`, `ALL GREEN`. Проверка «один трекер на файл» должна
 остаться зелёной: в разделах выше не упоминается чужой трекер.
 
-- [ ] **Шаг 6: Коммит**
+- [x] **Шаг 6: Коммит**
 
 ```bash
 git add references/adapters/asana.md references/adapters/clickup.md scripts/tests/test-adapters.sh
@@ -1188,7 +1188,7 @@ git commit -m "feat(adapters): board operations and five canonical section keys"
 - Отдаёт: навык `worklog-board`, нейтральный к трекеру, и четыре команды,
   которые его вызывают.
 
-- [ ] **Шаг 1: Написать падающий тест**
+- [x] **Шаг 1: Написать падающий тест**
 
 Дописать в `scripts/tests/test-skill.sh` перед `exit $fail`:
 
@@ -1218,7 +1218,7 @@ for c in plan-to-board board-move board-cancel board-relink; do
 done
 ```
 
-- [ ] **Шаг 2: Убедиться, что тест падает**
+- [x] **Шаг 2: Убедиться, что тест падает**
 
 ```
 sh scripts/tests/test-skill.sh; sh scripts/tests/test-command.sh
@@ -1226,7 +1226,7 @@ sh scripts/tests/test-skill.sh; sh scripts/tests/test-command.sh
 
 Ожидается: `FAIL` на всех новых проверках.
 
-- [ ] **Шаг 3: Написать навык**
+- [x] **Шаг 3: Написать навык**
 
 `skills/worklog-board/SKILL.md` — нейтральное ядро. Ни одного имени трекера:
 какой адаптер читать, определяется ключом `tracker` из разрешённого конфига, и
@@ -1264,20 +1264,20 @@ sh scripts/tests/test-skill.sh; sh scripts/tests/test-command.sh
 пишется в журнал; конфликт намерения с реальностью останавливает; исчезнувшая
 карточка останавливает и предлагает снять `Board:`.
 
-- [ ] **Шаг 4: Написать команды**
+- [x] **Шаг 4: Написать команды**
 
 Каждая из четырёх — тонкая обёртка в стиле `commands/log-day.md`: frontmatter с
 `description`, `argument-hint`, `allowed-tools` (объединение инструментов обоих
 трекеров, как уже сделано для `log-day`), и тело из трёх-четырёх строк,
 вызывающее навык `worklog-board`.
 
-- [ ] **Шаг 5: Дополнить навык дня**
+- [x] **Шаг 5: Дополнить навык дня**
 
 В `skills/worklog-day/SKILL.md`, в стадии записи: если у плана, к которому
 относится работа, есть `Board:`, закрывать **существующую** карточку через
 операцию `close` адаптера, а не создавать новую.
 
-- [ ] **Шаг 6: Убедиться, что тесты проходят**
+- [x] **Шаг 6: Убедиться, что тесты проходят**
 
 ```
 sh scripts/tests/run-all.sh
@@ -1285,7 +1285,7 @@ sh scripts/tests/run-all.sh
 
 Ожидается: `ALL GREEN`.
 
-- [ ] **Шаг 7: Коммит**
+- [x] **Шаг 7: Коммит**
 
 ```bash
 git add commands/ skills/ scripts/tests/test-skill.sh scripts/tests/test-command.sh
