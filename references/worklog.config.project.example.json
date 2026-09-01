@@ -1,4 +1,11 @@
 {
-  "clickup_list_id": "000000000000",
-  "umbrella_task_id": ""
+  "tracker": "asana",
+  "asana": {
+    "workspace_gid": "WORKSPACE_GID",
+    "project_gid": "PROJECT_GID",
+    "section_map": {
+      "done": "SECTION_GID",
+      "in progress": "SECTION_GID"
+    }
+  }
 }

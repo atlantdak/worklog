@@ -10,7 +10,7 @@
       "name": "worklog",
       "source": "./",
       "version": "0.1.0",
-      "description": "End-of-day worklog mirror into ClickUp from GitHub facts.",
+      "description": "End-of-day worklog mirror into your tracker (ClickUp or Asana) from GitHub facts.",
       "author": {
         "name": "Dmytro Kishkin",
         "email": "atlantdak@gmail.com"
