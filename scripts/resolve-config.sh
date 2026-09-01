@@ -2,14 +2,14 @@
 # Resolve the effective worklog config for a project by layering:
 #   built-in defaults  <  global ($HOME/.claude/worklog.config.json)  <  project (.claude/worklog.config.json)
 # Identity is never stored: github_repo is derived from the project's git remote when
-# unset, and assignee is left to the skill (resolved to the authenticated ClickUp user
-# via `clickup_resolve_assignees ["me"]` at write time) unless a config pins assignee_id.
+# unset, and assignee is left to the skill (resolved to the authenticated tracker user
+# at write time, per the adapter) unless a config pins assignee_id.
 #
 # Usage: resolve-config.sh [PROJECT_ROOT]    (default: current directory)
 #   stdout : effective config as JSON
 #   stderr : a provenance table (value <- source) — always printed
-#   exit 3 : NEEDS_ONBOARDING (no resolvable clickup_list_id) — the skill onboards
-#   exit 2 : usage / dependency error
+#   exit 3 : NEEDS_ONBOARDING (no tracker, or its required bindings are missing)
+#   exit 2 : usage / dependency error, including an unknown tracker
 # Env overrides (testing): WL_GLOBAL_CONFIG, WL_BUILTIN_LANG.
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -25,7 +25,7 @@ project="$root/.claude/worklog.config.json"
 builtin="$(jq -n --arg lang "${WL_BUILTIN_LANG:-en}" '{
   naming:        { scheme: "TASK-{n}", sub: "TASK-{n}.{m}", start_n: 1 },
   sp_calibration:"~14-15 SP per active day",
-  drafts_dir:    "ClickUp/_daily",
+  drafts_dir:    "worklog/_daily",
   terminology:   { avoid: [], use: [] },
   language:      $lang
 }')"
@@ -71,28 +71,69 @@ prov() {
   _v="$(printf '%s' "$eff" | jq -c --arg k "$_k" '.[$k] // "—"')"
   printf '  %-16s %-28s %s\n' "$_label" "$_v" "$_s" >&2
 }
+# --- Tracker resolution -------------------------------------------------------
+# One line per supported tracker: which config keys must resolve before anything can
+# be written. Adding a tracker = a line here + a file in references/adapters/. The
+# skill itself never names a tracker; this table and the adapters do.
+tracker_required() {
+  case "$1" in
+    clickup) printf 'clickup_list_id\n' ;;
+    asana)   printf 'asana.project_gid\n' ;;
+    *)       return 1 ;;
+  esac
+}
+
+tracker="$(printf '%s' "$eff" | jq -r '.tracker // ""')"
+tracker_src="config"
+if [ -z "$tracker" ]; then
+  # Backwards compatibility: a pre-adapter config carries clickup_list_id and no tracker.
+  if printf '%s' "$eff" | jq -e '.clickup_list_id != null' >/dev/null 2>&1; then
+    tracker="clickup"; tracker_src="inferred (legacy clickup_list_id)"
+    eff="$(printf '%s' "$eff" | jq '.tracker = "clickup"')"
+  else
+    tracker_src="unset"
+  fi
+fi
+req=""
+[ -z "$tracker" ] || req="$(tracker_required "$tracker")" \
+  || wl_die "unknown tracker: $tracker (supported: clickup, asana)"
+
 {
   printf 'worklog effective config (value <- source):\n' >&2
   printf '  %-16s %-28s %s\n' 'github_repo' "\"$repo\"" "$repo_src" >&2
-  prov clickup_list_id  clickup_list_id
+  printf '  %-16s %-28s %s\n' 'tracker' "\"$tracker\"" "$tracker_src" >&2
+  for key in $req; do
+    val="$(printf '%s' "$eff" | jq -r --arg k "$key" 'getpath($k | split(".")) // ""')"
+    printf '  %-16s %-28s %s\n' "$key" "\"$val\"" 'binding' >&2
+  done
   prov umbrella_task_id umbrella_task_id
   # assignee: pinned only if a layer set it; otherwise the skill resolves "me" at write time.
   if printf '%s' "$eff" | jq -e 'has("assignee_id") and .assignee_id != null and .assignee_id != ""' >/dev/null; then
     printf '  %-16s %-28s %s\n' 'assignee_id' "$(printf '%s' "$eff" | jq -c '.assignee_id')" 'config (override)' >&2
   else
-    printf '  %-16s %-28s %s\n' 'assignee_id' '"me"' 'dynamic (ClickUp authenticated user)' >&2
+    printf '  %-16s %-28s %s\n' 'assignee_id' '"me"' 'dynamic (authenticated tracker user)' >&2
   fi
   prov naming         naming
   prov language       language
   prov drafts_dir     drafts_dir
 }
 
-# Required binding: a real clickup_list_id. Missing/placeholder -> onboarding.
-list="$(printf '%s' "$eff" | jq -r '.clickup_list_id // ""')"
-case "$list" in
-  ""|"000000000000")
-    printf 'NEEDS_ONBOARDING: no clickup_list_id resolved (set it in %s)\n' "$project" >&2
-    printf '%s' "$eff"; exit 3 ;;
-esac
+# Required bindings must resolve before the skill may write anything.
+if [ -z "$tracker" ]; then
+  printf 'NEEDS_ONBOARDING: no tracker resolved (set "tracker" in %s)\n' "$project" >&2
+  printf '%s' "$eff"; exit 3
+fi
+
+missing=""
+for key in $req; do
+  val="$(printf '%s' "$eff" | jq -r --arg k "$key" 'getpath($k | split(".")) // ""')"
+  case "$val" in
+    ""|"000000000000"|"PROJECT_GID") missing="$missing $key" ;;
+  esac
+done
+if [ -n "$missing" ]; then
+  printf 'NEEDS_ONBOARDING: tracker %s needs:%s (set them in %s)\n' "$tracker" "$missing" "$project" >&2
+  printf '%s' "$eff"; exit 3
+fi
 
 printf '%s' "$eff"
