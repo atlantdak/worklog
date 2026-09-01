@@ -12,4 +12,12 @@ check "allows asana write tools"   "grep -q 'mcp__asana__create_tasks' '$f'"
 check "allows asana update+comment" \
   "grep -q 'mcp__asana__update_tasks' '$f' && grep -q 'mcp__asana__add_comment' '$f'"
 check "description is tracker-neutral" "! grep -q '^description:.*ClickUp' '$f'"
+for c in plan-to-board board-move board-cancel board-relink; do
+  cf="$root/commands/$c.md"
+  check "$c: command file exists"    "[ -s '$cf' ]"
+  check "$c: declares description"   "grep -q '^description:' '$cf'"
+  check "$c: declares allowed-tools" "grep -q '^allowed-tools:' '$cf'"
+  check "$c: invokes the board skill" "grep -q 'worklog-board' '$cf'"
+  check "$c: description is neutral" "! grep -qiE '^description:.*(ClickUp|Asana)' '$cf'"
+done
 exit $fail

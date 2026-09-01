@@ -24,4 +24,17 @@ check "mentions umbrellas/containers structure" "grep -q 'containers' '$f'"
 check "states voice by status" "grep -qi 'Voice by status' '$f'"
 check "S0 accepts russian window words" "grep -q 'вчера' '$f' && grep -q 'с #' '$f'"
 check "S0 keeps english window words"   "grep -q 'yesterday' '$f' && grep -q 'since' '$f'"
+b="$root/skills/worklog-board/SKILL.md"
+check "board skill exists"          "[ -s '$b' ]"
+check "board skill has name"        "grep -q '^name: worklog-board' '$b'"
+check "board skill has description" "grep -q '^description:' '$b'"
+for s in plan-file.sh board-state.sh board-preview.sh board-journal.sh resolve-config.sh; do
+  check "board skill uses $s"       "grep -q '$s' '$b'"
+done
+check "board skill mentions no tracker"      "! grep -qiE 'asana|clickup' '$b'"
+check "board skill announces its adapter"    "grep -qi 'announce' '$b'"
+check "board skill is preview-first"         "grep -qi 'preview' '$b'"
+check "board skill requires confirmation"    "grep -qi 'confirm' '$b'"
+check "board skill never deletes cards"      "grep -qi 'never delete' '$b'"
+check "day skill closes an existing card"    "grep -q 'Board:' '$f'"
 exit $fail
