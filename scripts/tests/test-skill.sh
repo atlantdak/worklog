@@ -22,4 +22,6 @@ check "states no-write-before-approval" "grep -qi 'never write' '$f' || grep -qi
 check "S3 nests subtasks natively" "grep -qi 'native' '$f'"
 check "mentions umbrellas/containers structure" "grep -q 'containers' '$f'"
 check "states voice by status" "grep -qi 'Voice by status' '$f'"
+check "S0 accepts russian window words" "grep -q 'вчера' '$f' && grep -q 'с #' '$f'"
+check "S0 keeps english window words"   "grep -q 'yesterday' '$f' && grep -q 'since' '$f'"
 exit $fail

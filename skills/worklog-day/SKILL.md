@@ -74,10 +74,13 @@ Every call to the tracker follows the adapter's sections: *Assignee*, *Read stat
 
 ## S0 — Scope
 
-Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh`:
-- `yesterday` or a bare `YYYY-MM-DD` → `date YYYY-MM-DD` (compute "yesterday" from
-  today; ask if ambiguous).
-- `#N` → `pr-single N`. `#A..#B` → `pr-range A..B`. `since #N` → `since N`.
+Map the user's words / `$ARGUMENTS` to a scope kind+value for `collect-window.sh`. Both
+English and Russian phrasings are accepted; the window is the same either way:
+- `yesterday` / `вчера`, or a bare `YYYY-MM-DD` → `date YYYY-MM-DD` (compute "yesterday"
+  from today; ask if ambiguous).
+- `today` / `сегодня` → `date <today>`.
+- `#N` → `pr-single N`. `#A..#B` → `pr-range A..B`.
+- `since #N` / `с #N` / `начиная с #N` → `since N`.
 - Blank → ask which window to take. Never guess silently.
 
 ## S1 — Gather (read-only)

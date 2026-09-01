@@ -1,6 +1,6 @@
 ---
 description: End-of-day worklog → your tracker. Gathers GitHub facts for a window you name, writes a review draft, and after approval mirrors it into the configured tracker.
-argument-hint: "[window — e.g. 'yesterday', '2026-06-04', '#180..#186', blank to be asked]"
+argument-hint: "[window — 'yesterday' / 'вчера', '2026-06-04', '#180..#186', 'с #180', blank to be asked]"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "AskUserQuestion", "Skill", "mcp__clickup__clickup_get_list", "mcp__clickup__clickup_filter_tasks", "mcp__clickup__clickup_resolve_assignees", "mcp__clickup__clickup_create_task", "mcp__clickup__clickup_update_task", "mcp__clickup__clickup_add_task_link", "mcp__clickup__clickup_create_task_comment", "mcp__asana__get_me", "mcp__asana__get_project", "mcp__asana__get_tasks", "mcp__asana__get_task", "mcp__asana__search_tasks", "mcp__asana__create_tasks", "mcp__asana__update_tasks", "mcp__asana__add_comment"]
 ---
 
