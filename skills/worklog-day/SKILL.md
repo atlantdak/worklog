@@ -53,6 +53,10 @@ Read its frontmatter capabilities and let them steer you:
   it to its parent.
 - `status` — how "done" is expressed: a named status, a section, a completion flag, or the
   combination the adapter spells out.
+- `write` — `api` (the default when absent): you create and update tasks through the tracker's
+  tools; `manual`: the tracker is read-only for you. Every write in S3 becomes a paste-ready
+  card that the user enters by hand and confirms, and you never call a tool that changes the
+  tracker, even one the server exposes. See **S3 — Manual write**.
 
 Every call to the tracker follows the adapter's sections: *Assignee*, *Read state*, *Create*,
 *Update*, *Nesting*, *Links*. Read its *Gotchas* before the first write.
@@ -160,10 +164,27 @@ entries — a child must reference its parent's real id. For each entry:
 - After each successful create, append its PR numbers to `$RUN/logged-prs.txt` (prevents
   intra-run dupes).
 
+### S3 — Manual write (adapter `write: manual`)
+
+The order and placement rules above stay the same; only the hands change.
+
+1. Write every card, in creation order (umbrellas first), to `$RUN/manual-cards.md` in the
+   shape the adapter's *Create* / *Update* sections give, so the user can copy from a file
+   rather than from wrapped terminal text. Tell them the file's full path.
+2. Show **one card at a time** and stop. The user creates the task by hand and pastes its URL
+   back. Take the id from the URL per the adapter's *Links* section, record it as that entry's
+   (or container's) real id, append its PRs to `$RUN/logged-prs.txt`, then show the next card.
+   A child card is shown only once its parent's URL is known.
+3. An update card needs only the user's "done", no URL. "Skip" leaves that entry out of S4
+   and out of `logged-prs.txt`. "Stop" ends the run; S4 reports what was entered so far.
+4. A pasted URL that does not parse, or that points outside the configured project, is asked
+   again, never guessed.
+
 ## S4 — Return links
 
 List every created/updated task as `name → <task URL built per the adapter's *Links* section>`.
-Report counts (created / updated / linked) and the SP total written. Done.
+Report counts (created / updated / linked) and the SP total written. With `write: manual`, the
+URLs are the ones the user pasted, and skipped entries are listed separately. Done.
 
 ## Guardrails
 

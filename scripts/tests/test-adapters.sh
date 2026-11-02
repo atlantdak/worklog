@@ -31,6 +31,13 @@ for f in "$dir"/*.md; do
   check "$b: status is a known value" \
     "case \"$(fm_get "$f" status)\" in named|section|completed_flag) true ;; *) false ;; esac"
 
+  check "$b: write is absent or a known value" \
+    "case \"$(fm_get "$f" write)\" in ''|api|manual) true ;; *) false ;; esac"
+  if [ "$(fm_get "$f" write)" = manual ]; then
+    check "$b: manual adapter forbids write tools" "grep -qi 'never call' '$f'"
+    check "$b: manual adapter waits for the pasted URL" "grep -qi 'paste' '$f'"
+  fi
+
   for s in Capabilities Config Assignee "Read state" Create Update Nesting Links Gotchas; do
     check "$b: has section $s" "grep -q '^## $s' '$f'"
   done
