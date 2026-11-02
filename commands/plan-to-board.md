@@ -1,7 +1,7 @@
 ---
 description: Put an approved plan on the tracker board. Builds a preview of the card and its subtasks, and writes nothing until you have read it and confirmed.
 argument-hint: "[path to the plan file]"
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "AskUserQuestion", "Skill", "mcp__clickup__clickup_get_task", "mcp__clickup__clickup_filter_tasks", "mcp__clickup__clickup_create_task", "mcp__clickup__clickup_update_task", "mcp__asana__get_task", "mcp__asana__get_tasks", "mcp__asana__get_project", "mcp__asana__search_tasks", "mcp__asana__create_tasks", "mcp__asana__update_tasks"]
+allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "AskUserQuestion", "Skill", "mcp__clickup__clickup_get_task", "mcp__clickup__clickup_filter_tasks", "mcp__clickup__clickup_create_task", "mcp__clickup__clickup_update_task", "mcp__asana__get_task", "mcp__asana__get_tasks", "mcp__asana__get_project", "mcp__asana__search_tasks", "mcp__asana__create_tasks", "mcp__asana__update_tasks", "mcp__worksection__get_projects", "mcp__worksection__get_project", "mcp__worksection__get_tasks", "mcp__worksection__get_subtasks", "mcp__worksection__get_task", "mcp__worksection__search_tasks"]
 ---
 
 # /plan-to-board

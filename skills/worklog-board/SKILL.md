@@ -30,6 +30,11 @@ Exit 2 is a hard error. Otherwise take `tracker` from the resolved config,
 announce it, and read `references/adapters/<tracker>.md`. Every tracker call
 below comes from that file — this skill names none of them.
 
+If the adapter's frontmatter says `write: manual`, every create, move and close
+below is an instruction to the human instead of a call: show it, wait for
+their confirmation (and, for a created card, the URL they paste back), then run
+the local script step. Never call a tool that changes the tracker.
+
 ## `/plan-to-board <plan>`
 
 1. `scripts/plan-file.sh read <plan>` — the plan as JSON.

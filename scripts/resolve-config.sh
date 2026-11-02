@@ -80,6 +80,7 @@ tracker_required() {
   case "$1" in
     clickup) printf 'clickup_list_id\n' ;;
     asana)   printf 'asana.project_gid\n' ;;
+    worksection) printf 'worksection.project_id\n' ;;
     *)       return 1 ;;
   esac
 }
@@ -97,7 +98,7 @@ if [ -z "$tracker" ]; then
 fi
 req=""
 [ -z "$tracker" ] || req="$(tracker_required "$tracker")" \
-  || wl_die "unknown tracker: $tracker (supported: clickup, asana)"
+  || wl_die "unknown tracker: $tracker (supported: clickup, asana, worksection)"
 
 {
   printf 'worklog effective config (value <- source):\n' >&2

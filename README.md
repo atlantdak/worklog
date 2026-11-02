@@ -29,6 +29,7 @@ The core skill drives the flow and knows no tracker. Each tracker is one recipe 
 | --- | --- | --- | --- |
 | `clickup` | `markdown` | `native` | `named` |
 | `asana` | `html_subset` | `native` | `section` |
+| `worksection` | `plain` | `native` | `completed_flag` |
 
 Pick one with the `tracker` key and give it the binding it asks for:
 
@@ -45,6 +46,18 @@ Pick one with the `tracker` key and give it the binding it asks for:
   }
 }
 ```
+
+```json
+{
+  "tracker": "worksection",
+  "worksection": { "project_id": "123456", "account_url": "https://ACCOUNT.worksection.com" }
+}
+```
+
+Worksection runs with `write: manual`: the MCP only reads (dedup, links), and every task is
+entered by hand from a paste-ready card the skill prepares (`$RUN/manual-cards.md`); you paste
+each created task's URL back and the next card follows. Any adapter can declare
+`write: manual` the same way.
 
 A config written before adapters existed — `clickup_list_id` and no `tracker` — keeps working:
 the resolver infers ClickUp from the binding.
